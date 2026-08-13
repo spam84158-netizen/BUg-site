@@ -1,6 +1,6 @@
 const socket = io();
 
-// ── Identifiant persistant du visiteur (sert à retrouver sa session WhatsApp) ──
+// ── Identifiant persistant du visiteur ──
 function getUserId() {
   let id = localStorage.getItem('userId');
   if (!id) {
@@ -14,10 +14,58 @@ socket.emit('set-user', USER_ID);
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
 }
 
-// ── Mini IndexedDB helper pour stocker le fond d'écran (photos ET vidéos) ──
+// ── Copie dans le presse-papiers + toast ──
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  let toast = document.getElementById('copy-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'copy-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+// ── Badge Founder (devis prime) ──
+function updateFounderBadge() {
+  const name = (localStorage.getItem('userName') || '').toLowerCase().trim();
+  const badge = document.getElementById('founder-badge');
+  if (!badge) return;
+  if (name === 'devis prime' || name === 'devisprime') badge.classList.remove('hidden');
+  else badge.classList.add('hidden');
+}
+
+// ── IndexedDB : fond d'écran (photos + vidéos) ──
 const wallpaperDB = {
   _dbp: null,
   open() {
@@ -70,7 +118,6 @@ function applyVideoWallpaper(blob) {
   bg.style.backgroundImage = '';
   bg.classList.remove('custom-bg');
   const url = URL.createObjectURL(blob);
-  // autoplay avec son : autorisé car déclenché par un geste utilisateur (choix du fichier)
   bg.innerHTML = `<video class="custom-bg-video" src="${url}" autoplay loop playsinline></video>`;
 }
 async function restoreWallpaper() {
@@ -164,10 +211,11 @@ document.getElementById('btn-signup').addEventListener('click', () => {
   localStorage.setItem('userName', name);
   if (avatarDataUrl) localStorage.setItem('userAvatar', avatarDataUrl);
 
+  updateFounderBadge();
   showScreen('screen-connect');
 });
 
-// ── ÉCRAN 2b : Connexion du numéro WhatsApp ──
+// ── ÉCRAN 2b : Connexion WhatsApp ──
 const connectForm = document.getElementById('connect-form');
 const connectWaiting = document.getElementById('connect-waiting');
 const connectError = document.getElementById('connect-error');
@@ -192,9 +240,22 @@ document.getElementById('connect-cancel').addEventListener('click', () => {
   connectForm.classList.remove('hidden');
 });
 
-socket.on('pairing-code', (code) => {
+// ── Code de pairage : copie auto + copie au clic ──
+let currentPairingCode = '';
+
+socket.on('pairing-code', async (code) => {
+  currentPairingCode = code;
   document.getElementById('pairing-code-display').textContent = code;
   document.getElementById('connect-status-label').textContent = 'En attente de connexion…';
+
+  const ok = await copyToClipboard(code);
+  showToast(ok ? 'Code copié automatiquement ✓' : 'Touche le code pour le copier');
+});
+
+document.getElementById('pairing-code-display').addEventListener('click', async () => {
+  if (!currentPairingCode) return;
+  const ok = await copyToClipboard(currentPairingCode);
+  showToast(ok ? 'Code copié ✓' : 'Copie impossible');
 });
 
 socket.on('pairing-error', (msg) => {
@@ -232,6 +293,8 @@ async function renderMenu() {
   if (savedAvatar) document.getElementById('header-avatar').src = savedAvatar;
   else document.getElementById('header-avatar').src = 'assets/logo.png';
 
+  updateFounderBadge();
+
   const waNumber = localStorage.getItem('waNumber');
   const waValue = document.getElementById('wa-number-value');
   if (waValue) waValue.textContent = waNumber ? '+' + waNumber : '';
@@ -259,7 +322,7 @@ function openSubmenu(optionKey) {
   Object.entries(opt.items).forEach(([subKey, label]) => {
     const item = document.createElement('div');
     item.className = 'submenu-item';
-    item.dataset.sub = subKey; // 1 à 5 — pilote le style (police/encadrement) en CSS
+    item.dataset.sub = subKey;
     item.textContent = label;
     item.addEventListener('click', () => {
       document.getElementById('submenu-modal').classList.add('hidden');
@@ -275,37 +338,18 @@ document.getElementById('submenu-close').addEventListener('click', () => {
 
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
     const tab = item.dataset.tab;
+    document.querySelectorAll('.nav-item').forEach(i => {
+      i.classList.toggle('active', i.dataset.tab === tab);
+    });
     if (tab === 'settings') showScreen('screen-settings');
-    else if (tab === 'history') { renderHistory(); showScreen('screen-history'); }
     else showScreen('screen-main');
   });
 });
 
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  const empty = document.getElementById('history-empty');
-  const history = JSON.parse(localStorage.getItem('sendHistory') || '[]');
-  list.innerHTML = '';
-  if (history.length === 0) {
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-  history.slice().reverse().forEach(entry => {
-    const row = document.createElement('div');
-    row.className = 'settings-row';
-    row.textContent = `${entry.label} → ${entry.number}`;
-    list.appendChild(row);
-  });
-}
-
 // ── ÉCRAN 4 : Paramètres ──
 document.getElementById('settings-back').addEventListener('click', () => showScreen('screen-main'));
 
-// Photo de profil (depuis les paramètres)
 document.getElementById('row-avatar').addEventListener('click', () => {
   document.getElementById('settings-avatar-input').click();
 });
@@ -320,7 +364,6 @@ document.getElementById('settings-avatar-input').addEventListener('change', (e) 
   reader.readAsDataURL(file);
 });
 
-// Conditions d'utilisation
 document.getElementById('row-terms').addEventListener('click', () => {
   document.getElementById('terms-modal').classList.remove('hidden');
 });
@@ -328,7 +371,6 @@ document.getElementById('terms-close').addEventListener('click', () => {
   document.getElementById('terms-modal').classList.add('hidden');
 });
 
-// Fond d'écran (persisté en IndexedDB pour survivre au rechargement, y compris les vidéos)
 document.getElementById('row-wallpaper').addEventListener('click', () => {
   document.getElementById('wallpaper-modal').classList.remove('hidden');
 });
@@ -356,7 +398,6 @@ document.getElementById('wallpaper-video-input').addEventListener('change', asyn
   await wallpaperDB.set('current', file);
 });
 
-// Numéro WhatsApp connecté → au clic, proposer de le déconnecter
 document.getElementById('row-wa-number').addEventListener('click', () => {
   const number = localStorage.getItem('waNumber');
   if (!number) { showScreen('screen-connect'); return; }
@@ -407,7 +448,6 @@ document.getElementById('btn-send').addEventListener('click', async () => {
   progressBar.style.width = '0%';
   progressLabel.textContent = '0%';
 
-  // Décompte visuel 0 -> 100
   let pct = 0;
   const interval = setInterval(() => {
     pct = Math.min(pct + 5, 95);
@@ -428,9 +468,6 @@ document.getElementById('btn-send').addEventListener('click', async () => {
 
     if (data.ok) {
       document.getElementById('send-success').classList.remove('hidden');
-      const history = JSON.parse(localStorage.getItem('sendHistory') || '[]');
-      history.push({ label: document.getElementById('send-title').textContent, number, date: new Date().toISOString() });
-      localStorage.setItem('sendHistory', JSON.stringify(history));
     } else {
       document.getElementById('send-error').textContent = data.error || 'Numéro non valide.';
       document.getElementById('send-error').classList.remove('hidden');
@@ -442,8 +479,9 @@ document.getElementById('btn-send').addEventListener('click', async () => {
   }
 });
 
-// Restaure l'avatar si déjà connecté
+// ── Restauration au chargement ──
 if (localStorage.getItem('accountCreated')) {
   const savedAvatar = localStorage.getItem('userAvatar');
   if (savedAvatar) document.getElementById('header-avatar').src = savedAvatar;
+  updateFounderBadge();
 }
