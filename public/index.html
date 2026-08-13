@@ -48,7 +48,7 @@
   <button id="btn-signup" class="btn-primary">Créer mon compte</button>
 </section>
 
-<!-- ÉCRAN 2b : Connexion du numéro WhatsApp -->
+<!-- ÉCRAN 2b : Connexion WhatsApp -->
 <section id="screen-connect" class="screen">
   <img src="assets/logo.png" class="logo" alt="logo">
   <h1>pair your number bug</h1>
@@ -56,12 +56,13 @@
 
   <div id="connect-form">
     <input type="tel" id="connect-number" placeholder="33xxxxx">
-    <button id="btn-connect" class="btn-primary">have the code </button>
+    <button id="btn-connect" class="btn-primary">have the code</button>
   </div>
 
   <div id="connect-waiting" class="hidden">
     <p class="hint">Ouvre WhatsApp → Appareils connectés → Lier avec un numéro de téléphone, puis entre ce code :</p>
     <div id="pairing-code-display" class="pairing-code"></div>
+    <p class="hint" style="font-size: 11px; opacity: 0.7;">⧉ Touche le code pour copier</p>
     <p class="hint" id="connect-status-label">En attente de connexion…</p>
     <button class="btn-secondary" id="connect-cancel">Changer de numéro</button>
   </div>
@@ -73,7 +74,10 @@
 <section id="screen-main" class="screen">
   <header class="app-header">
     <img src="assets/logo.png" class="header-logo" alt="logo">
-    <img id="header-avatar" class="header-avatar" src="" alt="">
+    <div class="header-avatar-wrap">
+      <img id="header-avatar" class="header-avatar" src="" alt="">
+      <span id="founder-badge" class="founder-badge hidden">★ Founder</span>
+    </div>
   </header>
 
   <div id="options-grid" class="options-grid"></div>
@@ -88,10 +92,10 @@
 
   <nav class="bottom-nav">
     <span data-tab="home" class="nav-item active">Accueil</span>
-    <span data-tab="history" class="nav-item">Historique</span>
     <span data-tab="settings" class="nav-item">Paramètres</span>
   </nav>
 </section>
+
 <!-- ÉCRAN 4 : Paramètres -->
 <section id="screen-settings" class="screen">
   <h2>Paramètres</h2>
@@ -123,7 +127,7 @@ By accessing this site, you agree to these terms of use.
 This service is exclusively intended for payload purposes. The user is solely responsible for their use of this service and agrees to comply with the applicable laws in their country.
 We reserve the right to suspend or terminate access to the service in the event of non-compliance with these terms and conditions.
 
-Founder devis prime 
+Founder devis prime
 Exclusive company: Zainz Company</p>
       <button class="btn-secondary" id="terms-close">Fermer</button>
     </div>
@@ -143,6 +147,7 @@ Exclusive company: Zainz Company</p>
     <p id="send-progress-label">0%</p>
   </div>
   <p id="send-success" class="success hidden">Process executed successfully ✅</p>
+  <p id="send-error" class="error hidden"></p>
 
   <button class="btn-secondary" id="send-back">Retour</button>
 </section>
