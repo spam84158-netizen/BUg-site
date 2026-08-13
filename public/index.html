@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zainz</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="bg-layer"></div>
+
+<!-- ÉCRAN 1 : Canaux -->
+<section id="screen-channels" class="screen active">
+  <img src="assets/logo.png" class="logo" alt="logo">
+  <h1>Rejoins nos canaux pour continuer</h1>
+  <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+  <p id="progress-label">0/3 canaux rejoints</p>
+
+  <div class="channel-list">
+    <div class="channel-card facet" data-channel="telegram" data-link="https://t.me/Zainz_channel">
+      <div class="channel-left"><img class="channel-logo" src="https://cdn.simpleicons.org/telegram/26A5E4" alt=""><span class="channel-name">Telegram</span></div>
+      <span class="check">✓</span>
+    </div>
+    <div class="channel-card facet" data-channel="whatsapp" data-link="https://whatsapp.com/channel/0029Vb8TEgjBKfhsPywW4m0X">
+      <div class="channel-left"><img class="channel-logo" src="https://cdn.simpleicons.org/whatsapp/25D366" alt=""><span class="channel-name">WhatsApp</span></div>
+      <span class="check">✓</span>
+    </div>
+    <div class="channel-card facet" data-channel="youtube" data-link="https://youtube.com/@zainzytb?si=Ss6or-Wou3IbXNZH">
+      <div class="channel-left"><img class="channel-logo" src="https://cdn.simpleicons.org/youtube/FF0000" alt=""><span class="channel-name">YouTube</span></div>
+      <span class="check"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ÉCRAN 2 : Inscription -->
+<section id="screen-signup" class="screen">
+  <div class="avatar-upload" id="avatar-upload">
+    <img id="avatar-preview" src="" alt="">
+    <span id="avatar-plus">+</span>
+    <input type="file" id="avatar-input" accept="image/*" hidden>
+  </div>
+  <input type="text" id="signup-name" placeholder="Nom">
+  <div class="password-field">
+    <input type="password" id="signup-password" placeholder="Mot de passe">
+    <span id="toggle-password"></span>
+  </div>
+  <button id="btn-signup" class="btn-primary">Créer mon compte</button>
+</section>
+
+<!-- ÉCRAN 2b : Connexion du numéro WhatsApp -->
+<section id="screen-connect" class="screen">
+  <img src="assets/logo.png" class="logo" alt="logo">
+  <h1>pair your number bug</h1>
+  <p class="hint">PAIRING CODE</p>
+
+  <div id="connect-form">
+    <input type="tel" id="connect-number" placeholder="33xxxxx">
+    <button id="btn-connect" class="btn-primary">have the code </button>
+  </div>
+
+  <div id="connect-waiting" class="hidden">
+    <p class="hint">Ouvre WhatsApp → Appareils connectés → Lier avec un numéro de téléphone, puis entre ce code :</p>
+    <div id="pairing-code-display" class="pairing-code"></div>
+    <p class="hint" id="connect-status-label">En attente de connexion…</p>
+    <button class="btn-secondary" id="connect-cancel">Changer de numéro</button>
+  </div>
+
+  <p id="connect-error" class="error hidden"></p>
+</section>
+
+<!-- ÉCRAN 3 : Interface principale -->
+<section id="screen-main" class="screen">
+  <header class="app-header">
+    <img src="assets/logo.png" class="header-logo" alt="logo">
+    <img id="header-avatar" class="header-avatar" src="" alt="">
+  </header>
+
+  <div id="options-grid" class="options-grid"></div>
+
+  <div id="submenu-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="submenu-title"></h3>
+      <div id="submenu-list"></div>
+      <button class="btn-secondary" id="submenu-close">Fermer</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <span data-tab="home" class="nav-item active">Accueil</span>
+    <span data-tab="history" class="nav-item">Historique</span>
+    <span data-tab="settings" class="nav-item">Paramètres</span>
+  </nav>
+</section>
+<!-- ÉCRAN 4 : Paramètres -->
+<section id="screen-settings" class="screen">
+  <h2>Paramètres</h2>
+  <div class="settings-list">
+    <div class="settings-row" id="row-avatar">Photo de profil <span>›</span></div>
+    <div class="settings-row" id="row-wallpaper">Fond d'écran <span>›</span></div>
+    <div class="settings-row" id="row-wa-number">Numéro WhatsApp connecté <span id="wa-number-value"></span></div>
+    <div class="settings-row" id="row-terms">Conditions d'utilisation <span>›</span></div>
+    <div class="settings-row" id="row-logout">Déconnexion <span>›</span></div>
+  </div>
+  <button class="btn-secondary" id="settings-back">Retour</button>
+
+  <div id="wallpaper-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Fond d'écran</h3>
+      <button class="btn-secondary" id="wallpaper-photo-btn">Utiliser une photo</button>
+      <button class="btn-secondary" id="wallpaper-video-btn">Utiliser une vidéo</button>
+      <input type="file" id="wallpaper-photo-input" accept="image/*" hidden>
+      <input type="file" id="wallpaper-video-input" accept="video/*" hidden>
+      <button class="btn-secondary" id="wallpaper-close">Fermer</button>
+    </div>
+  </div>
+
+  <div id="terms-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Conditions d'utilisation</h3>
+      <p class="terms-text">Terms of Use
+By accessing this site, you agree to these terms of use.
+This service is exclusively intended for payload purposes. The user is solely responsible for their use of this service and agrees to comply with the applicable laws in their country.
+We reserve the right to suspend or terminate access to the service in the event of non-compliance with these terms and conditions.
+
+Founder devis prime 
+Exclusive company: Zainz Company</p>
+      <button class="btn-secondary" id="terms-close">Fermer</button>
+    </div>
+  </div>
+
+  <input type="file" id="settings-avatar-input" accept="image/*" hidden>
+</section>
+
+<!-- ÉCRAN 5 : Envoi -->
+<section id="screen-send" class="screen">
+  <h2 id="send-title"></h2>
+  <input type="tel" id="send-number" placeholder="Numéro du destinataire">
+  <button id="btn-send" class="btn-primary">Sending</button>
+
+  <div id="send-progress-wrap" class="hidden">
+    <div class="progress"><div id="send-progress-bar" class="progress-bar"></div></div>
+    <p id="send-progress-label">0%</p>
+  </div>
+  <p id="send-success" class="success hidden">Process executed successfully ✅</p>
+
+  <button class="btn-secondary" id="send-back">Retour</button>
+</section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
