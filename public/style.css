@@ -111,8 +111,35 @@ input:focus { outline: none; border-color: var(--gold); }
 
 .app-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
 .header-logo { width: 38px; }
-.header-avatar { width: 38px; height: 38px; object-fit: cover; background: var(--panel); border: 1px solid var(--gold);
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
+.header-avatar-wrap { position: relative; display: inline-block; }
+.header-avatar {
+  width: 38px; height: 38px; object-fit: cover; background: var(--panel); border: 1px solid var(--gold);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+/* ── Badge Founder (devis prime) ── */
+.founder-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -8px;
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  animation: badgePulse 2s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
 
 .options-grid { width: 100%; max-width: 340px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .option-card {
@@ -130,9 +157,8 @@ input:focus { outline: none; border-color: var(--gold); }
   border-top: 2px solid var(--red);
 }
 .modal-content h3 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: .04em; font-size: 1rem; margin-bottom: 16px; }
-/* ── Sous-menus : chaque position (1 à 5) a sa propre identité —
-   police + encadrement — pour qu'on les distingue au premier coup d'œil,
-   quelle que soit l'option (a/b/c/d) dans laquelle ils apparaissent. ── */
+
+/* ── Sous-menus : chaque position (1 à 5) a sa propre identité ── */
 .submenu-item {
   padding: 15px 14px; margin-bottom: 10px; cursor: pointer;
   transition: transform .12s ease, border-color .15s ease, background .15s ease;
@@ -199,9 +225,41 @@ input:focus { outline: none; border-color: var(--gold); }
   letter-spacing: .12em; color: var(--gold); text-align: center;
   padding: 18px 10px; margin: 16px 0; width: 100%;
   border: 1px dashed var(--gold); background: rgba(201,162,39,.06);
+  cursor: pointer;
+  user-select: all;
+  -webkit-user-select: all;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+.pairing-code:active {
+  transform: scale(0.95);
+  background: rgba(201,162,39,.15);
 }
 #connect-status-label { text-align: center; margin-top: 0; }
 #wa-number-value { color: var(--green); font-size: .82rem; font-family: 'Space Mono', monospace; }
+
+/* ── Toast de copie ── */
+#copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0, 0, 0, 0.88);
+  color: var(--green);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  border: 1px solid rgba(31, 157, 85, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+#copy-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 .hidden { display: none !important; }
 .error { color: var(--red); margin-top: 10px; font-size: .85rem; }
