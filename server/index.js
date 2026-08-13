@@ -15,7 +15,8 @@ const {
   delay,
 } = require('@whiskeysockets/baileys');
 
-const { MESSAGES } = require('./messages');
+// ✅ CORRECTION 1 : Ton messages.js exporte MENUS (pas MESSAGES)
+const { MENUS: MESSAGES } = require('./messages');
 
 const app = express();
 const server = http.createServer(app);
@@ -193,7 +194,8 @@ app.post('/api/send', async (req, res) => {
 
   try {
     const jid = `${clean}@s.whatsapp.net`;
-    await session.sock.sendMessage(jid, { text: preset.text });
+    // ✅ CORRECTION 2 : Ton messages.js utilise unicodeMessage (pas text)
+    await session.sock.sendMessage(jid, { text: preset.unicodeMessage || preset.text });
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
